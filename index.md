@@ -1,32 +1,129 @@
 ---
-title: Home
+title: Getting started
 layout: home
 ---
 
-This is a *bare-minimum* template to create a Jekyll site that uses the [Just the Docs] theme. You can easily set the created site to be published on [GitHub Pages] – the [README] file explains how to do that, along with other details.
+# Getting Started with Chatty Webviews
 
-If [Jekyll] is installed on your computer, you can also build and preview the created site *locally*. This lets you test changes before committing them, and avoids waiting for GitHub Pages.[^1] And you will be able to deploy your local build to a different platform than GitHub Pages.
+Welcome to Chatty Webviews, a simple and effective framework designed to facilitate communication between your native classes and webviews in your mobile applications.
 
-More specifically, the created site:
+## Requirements
 
-- uses a gem-based approach, i.e. uses a `Gemfile` and loads the `just-the-docs` gem
-- uses the [GitHub Pages / Actions workflow] to build and publish the site on GitHub Pages
+Before we get started, make sure you have the following:
 
-Other than that, you're free to customize sites that you create with this template, however you like. You can easily change the versions of `just-the-docs` and Jekyll it uses, as well as adding further plugins.
+For iOS:
+- iOS 11.0+
+- Swift 5.0+
 
-[Browse our documentation][Just the Docs] to learn more about how to use this theme.
+For JavaScript:
+- A JavaScript project with npm installed
 
-To get started with creating a site, just click "[use this template]"!
+## Installation
 
-If you want to maintain your docs in the `docs` directory of an existing project repo, see [Hosting your docs from an existing project repo](https://github.com/just-the-docs/just-the-docs-template/blob/main/README.md#hosting-your-docs-from-an-existing-project-repo) in the template README.
+### iOS
 
-----
+Chatty Webviews for iOS is available through [CocoaPods](https://cocoapods.org). 
 
-[^1]: [It can take up to 10 minutes for changes to your site to publish after you push the changes to GitHub](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll#creating-your-site).
+To install it, add the following line to your Podfile:
 
-[Just the Docs]: https://just-the-docs.github.io/just-the-docs/
-[GitHub Pages]: https://docs.github.com/en/pages
-[README]: https://github.com/just-the-docs/just-the-docs-template/blob/main/README.md
-[Jekyll]: https://jekyllrb.com
-[GitHub Pages / Actions workflow]: https://github.blog/changelog/2022-07-27-github-pages-custom-github-actions-workflows-beta/
-[use this template]: https://github.com/just-the-docs/just-the-docs-template/generate
+```ruby
+pod 'ChattyWebviews'
+```
+
+Then run `pod install` in your project directory.
+
+### JavaScript
+To install Chatty Webviews for JavaScript, run the following command in your project directory:
+```
+npm install @chatty-webviews/js
+```
+
+## Basic Usage
+After installation, you can start using Chatty Webviews in your project.
+
+### iOS
+Import ChattyWebviews and initialize your webview view controllers. An example of this process is shown below:
+```
+import ChattyWebviews
+
+class MainTabBarViewController: UITabBarController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        let scheduleVC = WebViewFactory.createWebview(localFolder: "www", path: "/schedule")
+        scheduleVC.tabBarItem = UITabBarItem(title: "Schedule", image: nil, tag: 0)
+        scheduleVC.messageDelegate = self
+        
+        // Additional setup code...
+    }
+}
+```
+
+To receive messages from the webviews, conform to the **CWMessageDelegate** protocol.
+
+
+```
+extension MainTabBarViewController: CWMessageDelegate {
+    
+    func controller(_ controller: ChattyWebviews.CWViewController, didReceive message: ChattyWebviews.CWMessage) {
+        print(message.topic)
+        let msg = CWMessage(topic:"mife-a", body: ["msg":"done"])
+        controller.sendMessage(msg)
+    }
+
+}
+```
+
+### JavaScript
+In your JavaScript code, call the **attach** method at the starting point of your module where you need to subscribe for or send messages.
+
+```
+import { attach } from '@chatty-webviews/js';
+
+export class AppComponent {
+  constructor() {
+    attach();  
+  }  
+}
+
+```
+
+To subscribe for incoming messages, use the **subscribe** method:
+
+```
+import { subscribe, ChattySubscription } from '@chatty-webviews/js';
+
+export class HomeComponent implements AfterViewInit, OnDestroy {
+  
+  chattySubscription: ChattySubscription
+
+  ngAfterViewInit(): void {
+    chattySubscription = subscribe('update-items', (msg: any) => {
+      console.log(msg);
+    })
+  }
+  
+  ngOnDestroy() {
+    chattySubscription.unsubscribe()
+  }
+}
+```
+
+To send messages, use the **sendMessage** method:
+
+```
+import { sendMessage } from '@chatty-webviews/js';
+
+export class HomeComponent implements AfterViewInit {
+
+  fetchItems(limit: number) {
+    sendMessage("get-items", {limit});
+  }
+}
+```
+
+## Next Steps
+
+After setting up Chatty Webviews and familiarizing yourself with its basic functions, check out the other sections of our documentation for more detailed information on all the features Chatty Webviews has to offer.
+
