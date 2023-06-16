@@ -1,6 +1,7 @@
 ---
 title: Getting started
 layout: home
+nav_order: 0
 ---
 
 # Getting Started with Chatty Webviews
